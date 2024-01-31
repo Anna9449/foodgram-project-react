@@ -6,16 +6,16 @@ from rest_framework.response import Response
 from django.core.exceptions import BadRequest
 from django_filters.rest_framework import DjangoFilterBackend
 from django.http import HttpResponse
-from djoser.views import UserViewSet
 from djoser.serializers import SetPasswordSerializer
+from djoser.views import UserViewSet
 
 from .filters import RecipeFilter
-from .permissions import IsAuthorAdminOrReadOnly
 from .pagination import CustomPagination
+from .permissions import IsAuthorAdminOrReadOnly
 from .serializers import (CustomUserCreateSerializer, CustomUserSerializer,
                           IngredientSerializer, FavouriteSerializer,
-                          FollowSerializer, TagSerializer,
-                          RecipeCreateSerializer, RecipeSerializer)
+                          FollowSerializer, RecipeCreateSerializer,
+                          RecipeSerializer, TagSerializer)
 from recipes.models import (Ingredient, IngredientInRecipe, Favourite,
                             Follow, Recipe, ShoppingList, Tag, User)
 

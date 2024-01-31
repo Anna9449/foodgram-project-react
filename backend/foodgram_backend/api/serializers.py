@@ -1,9 +1,9 @@
 import base64
-import webcolors
 
-from rest_framework import pagination, serializers
+import webcolors
 from django.core.files.base import ContentFile
 from django.db.models import Count
+from rest_framework import pagination, serializers
 from djoser.serializers import (TokenCreateSerializer, UserCreateSerializer,
                                 UserSerializer)
 
