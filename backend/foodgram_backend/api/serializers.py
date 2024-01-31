@@ -146,7 +146,12 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        exclude = ('pub_date',)
+        fields = (
+            'id', 'name', 'author', 'text', 'ingredients',
+            'tags', 'image', 'cooking_time', 'is_favorited',
+            'is_in_shopping_cart'
+        )
+        #exclude = ('pub_date',)
 
     def get_ingredients(self, obj):
         ingredients = IngredientInRecipe.objects.filter(recipe=obj)
