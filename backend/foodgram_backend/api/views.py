@@ -1,4 +1,5 @@
 from http import HTTPStatus
+
 from rest_framework import filters, permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -26,7 +27,7 @@ class CustomUserViewSet(UserViewSet):
 
     def get_serializer_class(self):
         if self.action in ['subscriptions', 'subscribe']:
-            return FollowSerializer     #возможно переделать????
+            return FollowSerializer
         if self.action == 'create':
             return CustomUserCreateSerializer
         if self.action == 'set_password':
@@ -157,5 +158,3 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'Content-Disposition': 'attachment; filename="shopping_cart.txt"',
         })
         return response
-
-#проверить и настроить админку
