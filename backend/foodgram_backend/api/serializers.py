@@ -5,10 +5,10 @@ from django.core.files.base import ContentFile
 from django.db.models import Count
 from djoser.serializers import (TokenCreateSerializer, UserCreateSerializer,
                                 UserSerializer)
-from rest_framework import pagination, serializers
+from rest_framework import serializers
 
-from recipes.models import (Ingredient, IngredientInRecipe,
-                            Follow, Recipe, Tag, User)
+from recipes.models import (Ingredient, IngredientInRecipe, Follow, Recipe,
+                            Tag, User)
 
 
 class Hex2NameColor(serializers.Field):
@@ -272,10 +272,6 @@ class FavouriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
-
-
-class CustomResipePagination(pagination.PageNumberPagination):
-    page_size_query_param = 'recipes_limit'
 
 
 class FollowSerializer(serializers.ModelSerializer):

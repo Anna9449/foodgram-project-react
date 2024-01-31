@@ -1,8 +1,8 @@
 from http import HTTPStatus
 
 from django.core.exceptions import BadRequest
-from django_filters.rest_framework import DjangoFilterBackend
 from django.http import HttpResponse
+from django_filters.rest_framework import DjangoFilterBackend
 from djoser.serializers import SetPasswordSerializer
 from djoser.views import UserViewSet
 from rest_framework import filters, permissions, viewsets
@@ -16,8 +16,8 @@ from .serializers import (CustomUserCreateSerializer, CustomUserSerializer,
                           IngredientSerializer, FavouriteSerializer,
                           FollowSerializer, RecipeCreateSerializer,
                           RecipeSerializer, TagSerializer)
-from recipes.models import (Ingredient, IngredientInRecipe, Favourite,
-                            Follow, Recipe, ShoppingList, Tag, User)
+from recipes.models import (Ingredient, IngredientInRecipe, Favourite, Follow,
+                            Recipe, ShoppingList, Tag, User)
 
 
 class CustomUserViewSet(UserViewSet):
