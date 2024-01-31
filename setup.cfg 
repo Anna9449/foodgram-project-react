@@ -10,4 +10,4 @@ exclude =
     env/
     */env/,
 per-file-ignores =
-    */foodgram_backend/settings.py:E501 
+    */foodgram_backend/foodgram_backend/settings.py:E501 

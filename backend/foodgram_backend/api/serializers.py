@@ -3,9 +3,9 @@ import base64
 import webcolors
 from django.core.files.base import ContentFile
 from django.db.models import Count
-from rest_framework import pagination, serializers
 from djoser.serializers import (TokenCreateSerializer, UserCreateSerializer,
                                 UserSerializer)
+from rest_framework import pagination, serializers
 
 from recipes.models import (Ingredient, IngredientInRecipe,
                             Follow, Recipe, Tag, User)

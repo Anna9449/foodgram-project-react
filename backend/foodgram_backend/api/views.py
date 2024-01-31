@@ -1,13 +1,13 @@
 from http import HTTPStatus
 
-from rest_framework import filters, permissions, viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
 from django.core.exceptions import BadRequest
 from django_filters.rest_framework import DjangoFilterBackend
 from django.http import HttpResponse
 from djoser.serializers import SetPasswordSerializer
 from djoser.views import UserViewSet
+from rest_framework import filters, permissions, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from .filters import RecipeFilter
 from .pagination import CustomPagination
