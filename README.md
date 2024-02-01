@@ -68,6 +68,6 @@ sudo docker compose -f docker-compose.yml exec backend cp -r /app/static/. /stat
 ```
 
 ### Автор
-[![pre-commit](https://img.shields.io/badge/Anna_Pestovalogo=github&logoColor=white)](https://github.com/Anna9449)
+[![name badge](https://img.shields.io/badge/Anna_Pestova?logo=github&logoColor=white)](https://github.com/Anna9449)
 Анна Пестова
 
