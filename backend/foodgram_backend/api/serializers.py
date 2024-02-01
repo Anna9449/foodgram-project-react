@@ -289,7 +289,7 @@ class FollowSerializer(serializers.ModelSerializer):
         model = Follow
         fields = (
             'id', 'username', 'email', 'first_name',
-            'last_name',  'is_subscribed', 'recipes', 'recipes_count')
+            'last_name', 'is_subscribed', 'recipes', 'recipes_count')
         read_only_fields = ('user', 'subscription')
 
     def get_recipes(self, obj):
