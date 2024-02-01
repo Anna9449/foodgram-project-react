@@ -68,5 +68,5 @@ sudo docker compose -f docker-compose.yml exec backend cp -r /app/static/. /stat
 ```
 
 ### Автор
-[![name badge](https://img.shields.io/badge/Anna?logo=github&logoColor=white)](https://github.com/Anna9449)
+[![name badge](https://img.shields.io/badge/Anna&logo=github&logoColor=white)](https://github.com/Anna9449)
 
