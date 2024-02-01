@@ -67,6 +67,15 @@ sudo docker compose -f docker-compose.yml exec backend python manage.py collects
 sudo docker compose -f docker-compose.yml exec backend cp -r /app/static/. /static/static/ 
 ```
 
+Проект доступен по адресу:
+```
+https://fdgrm.ddns.net
+
+Anna
+Anna1234
+```
+
+
 ### Автор
 [![name badge](https://img.shields.io/badge/Anna_Pestova-3776AB?logo=github&logoColor=white)](https://github.com/Anna9449)
 
