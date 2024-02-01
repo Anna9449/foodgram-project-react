@@ -10,7 +10,7 @@ Foodgram - социальная сеть для обмена рецептами,
 
 ### Технологии:
 
-[![name badge](https://img.shields.io/badge/Python_d?logo=python&logoColor=white)](https://www.python.org/)
+[![name badge](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![name badge](https://img.shields.io/badge/Django-logo=django&logoColor=white)](https://docs.djangoproject.com/en/4.2/releases/3.2/)
 [![name badge](https://img.shields.io/badge/Django_REST_framework-logo=djangorestramework&logoColor=white)](https://www.django-rest-framework.org/)
 [![name badge](https://img.shields.io/badge/PostgreSQL-logo=postgresql&logoColor=white)](https://www.postgresql.org/)
