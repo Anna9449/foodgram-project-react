@@ -11,12 +11,12 @@ Foodgram - социальная сеть для обмена рецептами,
 ### Технологии:
 
 [![name badge](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![name badge](https://img.shields.io/badge/Django-logo=django&logoColor=white)](https://docs.djangoproject.com/en/4.2/releases/3.2/)
-[![name badge](https://img.shields.io/badge/Django_REST_framework-logo=djangorestramework&logoColor=white)](https://www.django-rest-framework.org/)
-[![name badge](https://img.shields.io/badge/PostgreSQL-logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![name badge](https://img.shields.io/badge/Gunicorn-logo=gunicorn&logoColor=white)](https://docs.gunicorn.org/en/latest/)
-[![name badge](https://img.shields.io/badge/Nginx-logo=nginx&logoColor=white)](https://nginx.org/)
-[![name badge](https://img.shields.io/badge/Docker-logo=docker&logoColor=white)](https://www.docker.com/)
+[![name badge](https://img.shields.io/badge/Django-3776AB?logo=django&logoColor=white)](https://docs.djangoproject.com/en/4.2/releases/3.2/)
+[![name badge](https://img.shields.io/badge/Django_REST_framework-3776AB?logo=djangorestramework&logoColor=white)](https://www.django-rest-framework.org/)
+[![name badge](https://img.shields.io/badge/PostgreSQL-3776AB?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![name badge](https://img.shields.io/badge/Gunicorn-3776AB?logo=gunicorn&logoColor=white)](https://docs.gunicorn.org/en/latest/)
+[![name badge](https://img.shields.io/badge/Nginx-3776AB?logo=nginx&logoColor=white)](https://nginx.org/)
+[![name badge](https://img.shields.io/badge/Docker-3776AB?logo=docker&logoColor=white)](https://www.docker.com/)
 
 ### Как запустить проект:
 
@@ -68,5 +68,5 @@ sudo docker compose -f docker-compose.yml exec backend cp -r /app/static/. /stat
 ```
 
 ### Автор
-[![name badge](https://img.shields.io/badge/Anna-Pestova-logo=github&logoColor=white)](https://github.com/Anna9449)
+[![name badge](https://img.shields.io/badge/Anna_Pestova-3776AB?logo=github&logoColor=white)](https://github.com/Anna9449)
 
