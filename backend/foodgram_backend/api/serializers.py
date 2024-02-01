@@ -140,18 +140,14 @@ class IngredientInRecipeCreateSerializer(serializers.ModelSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer()
     tags = TagSerializer(many=True)
+    image = Base64ImageField()
     ingredients = serializers.SerializerMethodField()
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
-        fields = (
-            'id', 'name', 'author', 'text', 'ingredients',
-            'tags', 'image', 'cooking_time', 'is_favorited',
-            'is_in_shopping_cart'
-        )
-        #exclude = ('pub_date',)
+        exclude = ('pub_date',)
 
     def get_ingredients(self, obj):
         ingredients = IngredientInRecipe.objects.filter(recipe=obj)
