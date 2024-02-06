@@ -29,4 +29,4 @@ class Command(BaseCommand):
             self.stdout.write(
                 self.style.ERROR(
                     f'File {csv_file_path} - not found')
-                )
+            )
