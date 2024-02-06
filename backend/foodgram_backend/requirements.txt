@@ -2,8 +2,10 @@ Django==3.2.16
 djangorestframework==3.12.4
 djoser==2.1.0
 Pillow==9.0.0
-webcolors==1.11.1   #под вопросом
+webcolors==1.11.1
 python-dotenv==1.0.0
 gunicorn==20.1.0
 psycopg2-binary==2.9.3
 django-filter==23.5
+drf-extra-fields==3.7.0
+django-colorfield==0.11.0

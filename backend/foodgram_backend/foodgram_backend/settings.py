@@ -1,6 +1,7 @@
 import os
-from pathlib import Path
+
 from dotenv import load_dotenv
+from pathlib import Path
 
 load_dotenv()
 
@@ -26,6 +27,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_filters',
     'djoser',
+    'colorfield'
 ]
 
 MIDDLEWARE = [
@@ -103,7 +105,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-AUTH_USER_MODEL = 'users.MyUser'
+AUTH_USER_MODEL = 'users.FoodgramUser'
 
 DJOSER = {
     'HIDE_USERS': False,
@@ -112,10 +114,8 @@ DJOSER = {
         'user_list': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
     },
     'SERIALIZERS': {
-        'user': 'api.serializers.CustomUserSerializer',
-        'current_user': 'api.serializers.CustomUserSerializer',
-        'user_create': 'api.serializers.CustomUserCreateSerializer',
-        'token_create': 'api.serializers.CustomTokenSerializer',
+        'user': 'api.serializers.FoodgramUserSerializer',
+        'current_user': 'api.serializers.FoodgramUserSerializer',
     },
 }
 

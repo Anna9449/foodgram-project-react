@@ -3,22 +3,23 @@ import os
 
 from django.core.management.base import BaseCommand
 
-from recipes.models import Ingredient
+from recipes.models import Tag
 
 
 class Command(BaseCommand):
-    help = 'Load data from ingredients.csv into the database'
+    help = 'Load data from tags.csv into the database'
 
     def handle(self, *args, **options):
-        csv_file_path = 'ingredients.csv'
+        csv_file_path = 'tags.csv'
 
         if os.path.exists(csv_file_path):
             with open(csv_file_path, 'r', encoding='UTF-8') as csv_file:
-                csv_reader = csv.DictReader(csv_file, ['name',
-                                                       'measurement_unit'])
+                csv_reader = csv.DictReader(csv_file, ['name', 'slug',
+                                                       'color'])
                 for row in csv_reader:
-                    name = Ingredient(name=row['name'],
-                                      measurement_unit=row['measurement_unit'])
+                    name = Tag(name=row['name'],
+                               slug=row['slug'],
+                               color=row['color'])
                     name.save()
                     self.stdout.write(
                         self.style.SUCCESS(

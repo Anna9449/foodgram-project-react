@@ -1,4 +1,7 @@
 from django.contrib import admin
+from django.contrib.auth.models import Group
+from django.utils.safestring import mark_safe
+from itertools import chain
 
 from .models import (Ingredient, IngredientInRecipe, Favourite, Follow, Recipe,
                      ShoppingList, Tag)
@@ -26,21 +29,39 @@ class IngredientAdmin(admin.ModelAdmin):
     list_display_links = ('name',)
 
 
+class IngredientInline(admin.TabularInline):
+    model = IngredientInRecipe
+
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'name',
         'author',
+        'ingredient_names',
         'recipe_count',
-        'pub_date'
+        'pub_date',
     )
+    fields = ('author', 'name', 'text', 'image', 'image_preview',
+              'tags', 'cooking_time')
+    readonly_fields = ('image_preview',)
     list_filter = ('author', 'name', 'tags',)
     list_display_links = ('name',)
+    inlines = (IngredientInline,)
 
-    @admin.display(description='Кол-во добавлений рецепта в избранное')
+    @admin.display(description='Добавлений в избранное')
     def recipe_count(self, obj):
         return obj.is_favorited.count()
+
+    @admin.display(description='Ингредиенты')
+    def ingredient_names(self, obj):
+        a = obj.ingredients.values_list('name')
+        return list(chain.from_iterable(a))
+
+    @admin.display(description='Изображение')
+    def image_preview(self, obj):
+        return mark_safe(f'<img src={obj.image.url} width="80" height="60">')
 
 
 @admin.register(IngredientInRecipe)
@@ -60,7 +81,7 @@ class FollowAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'user',
-        'subscription'
+        'author'
     )
     list_filter = ('user',)
     list_display_links = ('user',)
@@ -86,3 +107,6 @@ class ShoppingListAdmin(admin.ModelAdmin):
     )
     list_filter = ('recipe',)
     list_display_links = ('user',)
+
+
+admin.site.unregister(Group)
