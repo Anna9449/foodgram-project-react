@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
 from django.core.exceptions import BadRequest
-from django.db.models import Exists, Sum
+from django.db.models import Sum
 from django.http import FileResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
@@ -12,10 +12,11 @@ from rest_framework.response import Response
 from .filters import RecipeFilter
 from .pagination import CustomPagination
 from .permissions import IsAuthorAdminOrReadOnly
-from .serializers import (IngredientSerializer, 
+from .serializers import (IngredientSerializer, FavouriteCreateSerializer,
                           FollowSerializer, FoodgramUserSerializer,
                           FollowCreateSerializer, RecipeCreateSerializer,
-                          RecipeSerializer, TagSerializer, FavouriteCreateSerializer, ShoppingListCreateSerializer)
+                          RecipeSerializer, TagSerializer,
+                          ShoppingListCreateSerializer)
 from recipes.models import (Ingredient, IngredientInRecipe, Favourite, Follow,
                             Recipe, ShoppingList, Tag, User)
 

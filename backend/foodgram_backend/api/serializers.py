@@ -3,8 +3,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
-from recipes.models import (Ingredient, IngredientInRecipe, Follow, Recipe,
-                            Tag, User, Favourite, ShoppingList)
+from recipes.models import (Ingredient, IngredientInRecipe, Favourite, Follow,
+                            Recipe, ShoppingList, Tag, User)
 
 
 class Hex2NameColor(serializers.Field):
@@ -66,7 +66,6 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 
 
 class IngredientInRecipeCreateSerializer(serializers.ModelSerializer):
-    #id = serializers.IntegerField()
     id = serializers.PrimaryKeyRelatedField(source='ingredient',
                                             queryset=Ingredient.objects.all())
     amount = serializers.IntegerField(validators=[MaxValueValidator(10000),
