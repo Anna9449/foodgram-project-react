@@ -1,5 +1,3 @@
-from itertools import chain
-
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.utils.safestring import mark_safe

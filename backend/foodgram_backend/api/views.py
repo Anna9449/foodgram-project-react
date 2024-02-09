@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from django.db.models import Sum, Exists, OuterRef
+from django.db.models import Exists, OuterRef, Sum
 from django.http import FileResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
@@ -91,8 +91,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
         return Recipe.objects.select_related('author').prefetch_related(
             'ingredients', 'tags'
-            ).annotate(is_favorited=Exists(is_favorited),
-                       is_in_shopping_cart=Exists(is_in_shopping_cart))
+        ).annotate(is_favorited=Exists(is_favorited),
+                   is_in_shopping_cart=Exists(is_in_shopping_cart))
 
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
@@ -155,9 +155,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request):
         ingredients = IngredientInRecipe.objects.filter(
             recipe__is_in_shop_cart__user=request.user
-            ).values(
-                'ingredient__name', 'ingredient__measurement_unit'
-                ).order_by('ingredient__name').annotate(Sum('amount'))
+        ).values(
+            'ingredient__name', 'ingredient__measurement_unit'
+        ).order_by('ingredient__name').annotate(Sum('amount'))
         return FileResponse(self.shopping_list(ingredients), headers={
             'Content-Type': 'application/txt',
             'Content-Disposition': 'attachment; filename="shopping_cart.txt"',
