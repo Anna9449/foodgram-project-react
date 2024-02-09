@@ -1,7 +1,6 @@
 from http import HTTPStatus
 
-from django.core.exceptions import BadRequest
-from django.db.models import Sum
+from django.db.models import Sum, Exists, OuterRef
 from django.http import FileResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
@@ -28,8 +27,8 @@ class FoodgramUserViewSet(UserViewSet):
     http_method_names = ('get', 'post', 'delete')
 
     def get_permissions(self):
-        if self.action == "me":
-            self.permission_classes = (permissions.IsAuthenticated,)
+        if self.action == 'me':
+            return (permissions.IsAuthenticated(),)
         return super().get_permissions()
 
     @action(['GET'], detail=False, url_path='subscriptions',
@@ -51,8 +50,8 @@ class FoodgramUserViewSet(UserViewSet):
                   'author': id},
             context=self.get_serializer_context()
         )
-        if serializer.is_valid():
-            serializer.save()
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data, status=HTTPStatus.CREATED)
 
     @subscribe.mapping.delete
@@ -62,7 +61,7 @@ class FoodgramUserViewSet(UserViewSet):
         if follow_obj.exists():
             follow_obj.delete()
             return Response(status=HTTPStatus.NO_CONTENT)
-        raise BadRequest('Ошибка отписки. Вы не подписаны на пользователя.')
+        return Response(status=HTTPStatus.BAD_REQUEST)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -80,12 +79,20 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    queryset = (Recipe.objects.select_related('author')
-                .prefetch_related('ingredients', 'tags'))
     pagination_class = CustomPagination
     permission_classes = (IsAuthorAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
+
+    def get_queryset(self):
+        is_favorited = Recipe.objects.filter(is_fav__recipe=OuterRef('pk'))
+        is_in_shopping_cart = Recipe.objects.filter(
+            is_in_shop_cart__recipe=OuterRef('pk')
+        )
+        return Recipe.objects.select_related('author').prefetch_related(
+            'ingredients', 'tags'
+            ).annotate(is_favorited=Exists(is_favorited),
+                       is_in_shopping_cart=Exists(is_in_shopping_cart))
 
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
@@ -98,8 +105,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
                   'recipe': pk},
             context=self.get_serializer_context()
         )
-        if serializer.is_valid():
-            serializer.save()
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data, status=HTTPStatus.CREATED)
 
     @action(['POST'], detail=True, url_path='favorite',
@@ -116,8 +123,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if follow_obj.exists():
             follow_obj.delete()
             return Response(status=HTTPStatus.NO_CONTENT)
-        raise BadRequest('Этого рецепта нет в избранном,'
-                         'его невозможно удалить.')
+        return Response(status=HTTPStatus.BAD_REQUEST)
 
     @action(['POST'], detail=True, url_path='shopping_cart',
             permission_classes=(permissions.IsAuthenticated,))
@@ -133,8 +139,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if follow_obj.exists():
             follow_obj.delete()
             return Response(status=HTTPStatus.NO_CONTENT)
-        raise BadRequest('Этого рецепта нет в списке покупок,'
-                         'его невозможно удалить.')
+        return Response(status=HTTPStatus.BAD_REQUEST)
 
     def shopping_list(self, ingredients):
         shopping_list_for_txt = 'Список покупок:\n'
@@ -148,12 +153,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(['GET'], detail=False, url_path='download_shopping_cart',
             permission_classes=(permissions.IsAuthenticated,))
     def download_shopping_cart(self, request):
-        ingredients = (IngredientInRecipe.objects
-                       .filter(recipe__is_in_shopping_cart__user=request.user)
-                       .values('ingredient__name',
-                               'ingredient__measurement_unit')
-                       .order_by('ingredient__name')
-                       .annotate(Sum('amount')))
+        ingredients = IngredientInRecipe.objects.filter(
+            recipe__is_in_shop_cart__user=request.user
+            ).values(
+                'ingredient__name', 'ingredient__measurement_unit'
+                ).order_by('ingredient__name').annotate(Sum('amount'))
         return FileResponse(self.shopping_list(ingredients), headers={
             'Content-Type': 'application/txt',
             'Content-Disposition': 'attachment; filename="shopping_cart.txt"',

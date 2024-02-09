@@ -32,6 +32,7 @@ class IngredientAdmin(admin.ModelAdmin):
 
 class IngredientInline(admin.TabularInline):
     model = IngredientInRecipe
+    min_num = 1
 
 
 @admin.register(Recipe)
@@ -40,7 +41,7 @@ class RecipeAdmin(admin.ModelAdmin):
         'id',
         'name',
         'author',
-        'ingredient_names',
+        'get_ingredients',
         'recipe_count',
         'pub_date',
     )
@@ -55,10 +56,15 @@ class RecipeAdmin(admin.ModelAdmin):
     def recipe_count(self, obj):
         return obj.is_favorited.count()
 
+    @mark_safe
     @admin.display(description='Ингредиенты')
-    def ingredient_names(self, obj):
-        a = obj.ingredients.values_list('name')
-        return list(chain.from_iterable(a))
+    def get_ingredients(self, obj):
+        queryset = IngredientInRecipe.objects.filter(recipe_id=obj.id).all()
+        return '<br> '.join(
+            [f'{item.ingredient.name.capitalize()} - '
+             f'{item.amount}'
+             f'{item.ingredient.measurement_unit}'
+             for item in queryset])
 
     @admin.display(description='Изображение')
     def image_preview(self, obj):

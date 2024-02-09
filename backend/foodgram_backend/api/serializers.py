@@ -3,6 +3,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
+from .const import MAX_VALUE, MIN_VALUE
 from recipes.models import (Ingredient, IngredientInRecipe, Favourite, Follow,
                             Recipe, ShoppingList, Tag, User)
 
@@ -66,10 +67,11 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 
 
 class IngredientInRecipeCreateSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(source='ingredient',
-                                            queryset=Ingredient.objects.all())
-    amount = serializers.IntegerField(validators=[MaxValueValidator(10000),
-                                                  MinValueValidator(1)],)
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    amount = serializers.IntegerField(
+        validators=[MaxValueValidator(MAX_VALUE),
+                    MinValueValidator(MIN_VALUE)],
+    )
 
     class Meta:
         model = IngredientInRecipe
@@ -81,22 +83,12 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
     ingredients = IngredientInRecipeSerializer(source='ingredient_in_recipe',
                                                many=True)
-    is_favorited = serializers.SerializerMethodField()
-    is_in_shopping_cart = serializers.SerializerMethodField()
+    is_favorited = serializers.BooleanField()
+    is_in_shopping_cart = serializers.BooleanField()
 
     class Meta:
         model = Recipe
         exclude = ('pub_date',)
-
-    def get_is_favorited(self, obj):
-        request = self.context['request']
-        return (request and request.user.is_authenticated
-                and obj.is_favorited.filter(user=request.user).exists())
-
-    def get_is_in_shopping_cart(self, obj):
-        request = self.context['request']
-        return (request and request.user.is_authenticated
-                and obj.is_in_shopping_cart.filter(user=request.user).exists())
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
@@ -108,7 +100,9 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     ingredients = IngredientInRecipeCreateSerializer(many=True)
     image = Base64ImageField(allow_null=False, allow_empty_file=False)
     cooking_time = serializers.IntegerField(
-        validators=[MaxValueValidator(1440), MinValueValidator(1)],)
+        validators=[MaxValueValidator(MAX_VALUE),
+                    MinValueValidator(MIN_VALUE)],
+    )
 
     class Meta:
         model = Recipe
@@ -131,23 +125,23 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Добавьте в рецепт хотя бы один ингредиент.'
             )
-        lst = [ingredient['ingredient'] for ingredient in data['ingredients']]
+        lst = [ingredient['id'] for ingredient in data['ingredients']]
         if len(lst) > len(set(lst)):
             raise serializers.ValidationError(
                 'В рецепте есть повторяющиеся ингредиенты.'
             )
         return data
 
-    def get_ingredient_in_recipe_list(self, recipe, ingredients_data):
+    def create_ingredient_in_recipe(self, recipe, ingredients_data):
         lst = []
         for ingredient in ingredients_data:
             ingredient_in_recipe_obj = IngredientInRecipe(
-                ingredient=ingredient['ingredient'],
+                ingredient=ingredient['id'],
                 recipe=recipe,
                 amount=ingredient['amount']
             )
             lst.append(ingredient_in_recipe_obj)
-        return lst
+        IngredientInRecipe.objects.bulk_create(lst)
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients')
@@ -155,25 +149,17 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         recipe = Recipe.objects.create(**validated_data,
                                        author=self.context['request'].user)
         recipe.tags.set(tags_data)
-        IngredientInRecipe.objects.bulk_create(
-            self.get_ingredient_in_recipe_list(recipe, ingredients_data)
-        )
+        self.create_ingredient_in_recipe(recipe, ingredients_data)
         return recipe
 
     def update(self, instance, validated_data):
         ingredients_data = validated_data.pop('ingredients')
         tags_data = validated_data.pop('tags')
         instance.tags.set(tags_data)
-        lst = []
-        for ingredient in ingredients_data:
-            lst.append(Ingredient.objects.get(name=ingredient['ingredient']))
-            IngredientInRecipe.objects.get_or_create(
-                ingredient=ingredient['ingredient'],
-                recipe=instance,
-                amount=ingredient['amount']
-            )
+        instance.ingredient_in_recipe.all().delete()
+        self.create_ingredient_in_recipe(instance, ingredients_data)
+        lst = [ingredient['id'] for ingredient in ingredients_data]
         instance.ingredients.set(lst)
-        instance.save()
         return super().update(instance, validated_data)
 
     def to_representation(self, obj):
@@ -186,42 +172,33 @@ class FavouriteShopListSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
-class FavouriteCreateSerializer(serializers.ModelSerializer):
+class FavouriteShopListCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favourite
         fields = ('user', 'recipe')
 
-    def validate_recipe(self, value):
+    def validate(self, data):
         user = self.context['request'].user
-        if Favourite.objects.filter(user=user,
-                                    recipe=value).exists():
-            raise serializers.ValidationError(
-                'Рецепт уже есть в избранном!'
-            )
-        return value
-
-    def to_representation(self, obj):
-        return FavouriteShopListSerializer(obj.recipe,
-                                           context=self.context).data
-
-
-class ShoppingListCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ShoppingList
-        fields = ('user', 'recipe')
-
-    def validate_recipe(self, value):
-        user = self.context['request'].user
-        if ShoppingList.objects.filter(user=user,
-                                       recipe=value).exists():
+        if self.Meta.model.objects.filter(user=user,
+                                          recipe=data['recipe']).exists():
             raise serializers.ValidationError(
                 'Рецепт уже есть в списке покупок!'
             )
-        return value
+        return data
 
     def to_representation(self, obj):
         return FavouriteShopListSerializer(obj.recipe,
                                            context=self.context).data
+
+
+class FavouriteCreateSerializer(FavouriteShopListCreateSerializer):
+    class Meta(FavouriteShopListCreateSerializer.Meta):
+        model = Favourite
+
+
+class ShoppingListCreateSerializer(FavouriteShopListCreateSerializer):
+    class Meta(FavouriteShopListCreateSerializer.Meta):
+        model = ShoppingList
 
 
 class FollowSerializer(FoodgramUserSerializer):
@@ -241,8 +218,10 @@ class FollowSerializer(FoodgramUserSerializer):
         recipes_limit = (
             self.context['request'].query_params.get('recipes_limit')
         )
-        if recipes_limit and recipes_limit.isnumeric():
+        try:
             recipes = recipes[:int(recipes_limit)]
+        except None:
+            None
         return FavouriteShopListSerializer(recipes, many=True,
                                            context=self.context).data
 
@@ -259,8 +238,7 @@ class FollowCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Невозможно подписаться на самого себя!'
             )
-        if Follow.objects.filter(user=user,
-                                 author=value).exists():
+        if value.author.filter(user=user).exists():
             raise serializers.ValidationError(
                 'Вы уже подписаны на этого пользователя!'
             )

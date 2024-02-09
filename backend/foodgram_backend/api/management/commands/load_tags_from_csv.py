@@ -1,5 +1,4 @@
 import csv
-import os
 
 from django.core.management.base import BaseCommand
 
@@ -12,7 +11,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         csv_file_path = 'tags.csv'
 
-        if os.path.exists(csv_file_path):
+        try:
             with open(csv_file_path, 'r', encoding='UTF-8') as csv_file:
                 csv_reader = csv.DictReader(csv_file, ['name', 'slug',
                                                        'color'])
@@ -25,7 +24,7 @@ class Command(BaseCommand):
                         self.style.SUCCESS(
                             f'Successfully loaded data from {csv_file_path}')
                     )
-        else:
+        except FileNotFoundError:
             self.stdout.write(
                 self.style.ERROR(
                     f'File {csv_file_path} - not found')

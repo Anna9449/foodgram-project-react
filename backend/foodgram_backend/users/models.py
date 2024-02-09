@@ -6,12 +6,13 @@ from api.const import (LENGTH_TEXT_OUTPUT, MAX_LENGTH_INPUT,
 
 
 class FoodgramUser(AbstractUser):
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ('username', 'first_name', 'last_name')
+
     first_name = models.CharField('Имя', max_length=MAX_LENGTH_INPUT)
     last_name = models.CharField('Фамилия', max_length=MAX_LENGTH_INPUT)
     email = models.EmailField('email', max_length=MAX_LENGTH_INPUT_EMAIL,
                               unique=True)
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ('username', 'first_name', 'last_name')
 
     class Meta:
         ordering = ('username',)
