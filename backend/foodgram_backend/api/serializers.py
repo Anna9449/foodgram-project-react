@@ -1,5 +1,4 @@
 import webcolors
-from django.core.validators import MaxValueValidator, MinValueValidator
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
@@ -69,8 +68,12 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 class IngredientInRecipeCreateSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
     amount = serializers.IntegerField(
-        validators=[MaxValueValidator(MAX_VALUE),
-                    MinValueValidator(MIN_VALUE)],
+        max_value=MAX_VALUE,
+        min_value=MIN_VALUE,
+        error_messages={
+            'max_value': 'Количество ингредиента не может быть больше 32767.',
+            'min_value': 'Количество ингредиента не может быть меньше 1.'
+        }
     )
 
     class Meta:
@@ -100,8 +103,12 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     ingredients = IngredientInRecipeCreateSerializer(many=True)
     image = Base64ImageField(allow_null=False, allow_empty_file=False)
     cooking_time = serializers.IntegerField(
-        validators=[MaxValueValidator(MAX_VALUE),
-                    MinValueValidator(MIN_VALUE)],
+        max_value=MAX_VALUE,
+        min_value=MIN_VALUE,
+        error_messages={
+            'max_value': 'Время приготовления не может быть больше 32767.',
+            'min_value': 'Время приготовления не может быть меньше 1.'
+        }
     )
 
     class Meta:
@@ -133,15 +140,14 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return data
 
     def create_ingredient_in_recipe(self, recipe, ingredients_data):
-        lst = []
-        for ingredient in ingredients_data:
-            ingredient_in_recipe_obj = IngredientInRecipe(
+        ingredients = [
+            IngredientInRecipe(
                 ingredient=ingredient['id'],
-                recipe=recipe,
-                amount=ingredient['amount']
-            )
-            lst.append(ingredient_in_recipe_obj)
-        IngredientInRecipe.objects.bulk_create(lst)
+                amount=ingredient['amount'],
+                recipe=recipe
+            ) for ingredient in ingredients_data
+        ]
+        IngredientInRecipe.objects.bulk_create(ingredients)
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients')
@@ -158,8 +164,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         instance.tags.set(tags_data)
         instance.ingredient_in_recipe.all().delete()
         self.create_ingredient_in_recipe(instance, ingredients_data)
-        lst = [ingredient['id'] for ingredient in ingredients_data]
-        instance.ingredients.set(lst)
         return super().update(instance, validated_data)
 
     def to_representation(self, obj):
@@ -182,7 +186,7 @@ class FavouriteShopListCreateSerializer(serializers.ModelSerializer):
         if self.Meta.model.objects.filter(user=user,
                                           recipe=data['recipe']).exists():
             raise serializers.ValidationError(
-                'Рецепт уже есть в списке покупок!'
+                f'Рецепт уже добавлен в {self.Meta.model._meta.verbose_name}!'
             )
         return data
 
@@ -219,9 +223,11 @@ class FollowSerializer(FoodgramUserSerializer):
             self.context['request'].query_params.get('recipes_limit')
         )
         try:
-            recipes = recipes[:int(recipes_limit)]
-        except None:
-            None
+            if recipes_limit:
+                recipes_limit = int(recipes_limit)
+        except ValueError:
+            pass
+        recipes = recipes[:recipes_limit]
         return FavouriteShopListSerializer(recipes, many=True,
                                            context=self.context).data
 

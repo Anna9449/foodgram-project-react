@@ -52,7 +52,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
     @admin.display(description='Добавлений в избранное')
     def recipe_count(self, obj):
-        return obj.is_favorited.count()
+        return obj.is_fav.count()
 
     @mark_safe
     @admin.display(description='Ингредиенты')

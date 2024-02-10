@@ -61,11 +61,17 @@ class Recipe(models.Model):
         Tag,
         verbose_name='Теги'
     )
-    cooking_time = models.SmallIntegerField(
+    cooking_time = models.PositiveSmallIntegerField(
         'Время приготовления',
         validators=[
-            MaxValueValidator(MAX_VALUE),
-            MinValueValidator(MIN_VALUE)
+            MaxValueValidator(
+                MAX_VALUE,
+                message='Время приготовления не может быть больше 32767.'
+            ),
+            MinValueValidator(
+                MIN_VALUE,
+                message='Время приготовления не может быть меньше 1.'
+            )
         ],)
     pub_date = models.DateTimeField(
         'Дата публикации', auto_now_add=True
@@ -86,11 +92,17 @@ class IngredientInRecipe(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Ингредиент'
     )
-    amount = models.SmallIntegerField(
+    amount = models.PositiveSmallIntegerField(
         'Количество',
         validators=[
-            MaxValueValidator(MAX_VALUE),
-            MinValueValidator(MIN_VALUE)
+            MaxValueValidator(
+                MAX_VALUE,
+                message='Количество ингредиента не может быть больше 32767.'
+            ),
+            MinValueValidator(
+                MIN_VALUE,
+                message='Количество ингредиента не может быть меньше 1.'
+            )
         ],)
     recipe = models.ForeignKey(
         Recipe,
@@ -132,8 +144,8 @@ class Follow(models.Model):
         verbose_name_plural = 'Подписки'
         constraints = (
             models.CheckConstraint(
-                name="%(app_label)s_%(class)s_prevent_self_follow",
-                check=~models.Q(user=models.F("author")),
+                name='%(app_label)s_%(class)s_prevent_self_follow',
+                check=~models.Q(user=models.F('author')),
             ),
             models.UniqueConstraint(
                 fields=('user', 'author'),
