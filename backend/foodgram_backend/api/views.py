@@ -85,22 +85,24 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filterset_class = RecipeFilter
 
     def get_queryset(self):
+        queryset = Recipe.objects.select_related('author').prefetch_related(
+            'ingredients', 'tags'
+        )
         if self.request.user.is_authenticated:
             user = self.request.user
-        else:
-            user = None
-        is_favorited = Recipe.objects.filter(
-            is_fav__recipe=OuterRef('pk'),
-            is_fav__user=user
-        )
-        is_in_shopping_cart = Recipe.objects.filter(
-            is_in_shop_cart__recipe=OuterRef('pk'),
-            is_in_shop_cart__user=user
-        )
-        return Recipe.objects.select_related('author').prefetch_related(
-            'ingredients', 'tags'
-        ).annotate(is_favorited=Exists(is_favorited),
-                   is_in_shopping_cart=Exists(is_in_shopping_cart))
+            is_favorited = Recipe.objects.filter(
+                is_fav__recipe=OuterRef('pk'),
+                is_fav__user=user
+            )
+            is_in_shopping_cart = Recipe.objects.filter(
+                is_in_shop_cart__recipe=OuterRef('pk'),
+                is_in_shop_cart__user=user
+            )
+            return queryset.annotate(
+                is_favorited=Exists(is_favorited),
+                is_in_shopping_cart=Exists(is_in_shopping_cart)
+            )
+        return queryset
 
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):

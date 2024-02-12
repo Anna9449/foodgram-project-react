@@ -86,8 +86,8 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
     ingredients = IngredientInRecipeSerializer(source='ingredient_in_recipe',
                                                many=True)
-    is_favorited = serializers.BooleanField()
-    is_in_shopping_cart = serializers.BooleanField()
+    is_favorited = serializers.BooleanField(default=False)
+    is_in_shopping_cart = serializers.BooleanField(default=False)
 
     class Meta:
         model = Recipe
@@ -183,10 +183,11 @@ class FavouriteShopListCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         user = self.context['request'].user
-        if self.Meta.model.objects.filter(user=user,
-                                          recipe=data['recipe']).exists():
+        model = self.Meta.model
+        if model.objects.filter(user=user,
+                                recipe=data['recipe']).exists():
             raise serializers.ValidationError(
-                f'Рецепт уже добавлен в {self.Meta.model._meta.verbose_name}!'
+                f'Рецепт уже добавлен в {model._meta.verbose_name}!'
             )
         return data
 
@@ -222,11 +223,11 @@ class FollowSerializer(FoodgramUserSerializer):
         recipes_limit = (
             self.context['request'].query_params.get('recipes_limit')
         )
-        try:
-            if recipes_limit:
+        if recipes_limit:
+            try:
                 recipes_limit = int(recipes_limit)
-        except ValueError:
-            pass
+            except ValueError:
+                pass
         recipes = recipes[:recipes_limit]
         return FavouriteShopListSerializer(recipes, many=True,
                                            context=self.context).data

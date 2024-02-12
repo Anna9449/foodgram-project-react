@@ -66,11 +66,13 @@ class Recipe(models.Model):
         validators=[
             MaxValueValidator(
                 MAX_VALUE,
-                message='Время приготовления не может быть больше 32767.'
+                message='Время приготовления не может быть больше'
+                        f' {MAX_VALUE}.'
             ),
             MinValueValidator(
                 MIN_VALUE,
-                message='Время приготовления не может быть меньше 1.'
+                message='Время приготовления не может быть меньше'
+                        f' {MIN_VALUE}.'
             )
         ],)
     pub_date = models.DateTimeField(
@@ -97,11 +99,13 @@ class IngredientInRecipe(models.Model):
         validators=[
             MaxValueValidator(
                 MAX_VALUE,
-                message='Количество ингредиента не может быть больше 32767.'
+                message='Количество ингредиента не может быть больше'
+                        f' {MAX_VALUE}.'
             ),
             MinValueValidator(
                 MIN_VALUE,
-                message='Количество ингредиента не может быть меньше 1.'
+                message='Количество ингредиента не может быть меньше'
+                        f' {MIN_VALUE}.'
             )
         ],)
     recipe = models.ForeignKey(

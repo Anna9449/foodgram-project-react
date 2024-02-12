@@ -111,7 +111,7 @@ DJOSER = {
     'HIDE_USERS': False,
     'PERMISSIONS': {
         'user': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
-        'user_list': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
+        'user_list': ['rest_framework.permissions.AllowAny'],
     },
     'SERIALIZERS': {
         'user': 'api.serializers.FoodgramUserSerializer',
@@ -122,7 +122,7 @@ DJOSER = {
 REST_FRAMEWORK = {
     'SEARCH_PARAM': 'name',
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+        'rest_framework.permissions.AllowAny',
     ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
