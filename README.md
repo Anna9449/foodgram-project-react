@@ -71,8 +71,6 @@ sudo docker compose -f docker-compose.yml exec backend cp -r /app/static/. /stat
 ```
 https://fdgrm.ddns.net
 
-Anna
-Anna1234
 ```
 
 
